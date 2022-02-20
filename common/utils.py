@@ -28,6 +28,8 @@ def send_message(sock, message):
     @sock: client socket
     @message: dict  message for sending
     """
+    if not isinstance(message, dict):
+        raise TypeError
     js_message = json.dumps(message)
     encoded_message = js_message.encode(ENCODING)
     sock.send(encoded_message)
