@@ -1,0 +1,9 @@
+2022-02-26 20:55:18,150 - INFO     - msgr_server - Установлено соединение с ('127.0.0.1', 42244).
+2022-02-26 20:55:18,151 - INFO     - msgr_server - Получено сообщение {'action': 'presence', 'time': 1645898118.1508963, 'user': {'account_name': 'Guest'}}.
+2022-02-26 20:55:18,151 - INFO     - msgr_server - Разбор сообщения от клиента: {'action': 'presence', 'time': 1645898118.1508963, 'user': {'account_name': 'Guest'}}
+2022-02-26 20:55:18,151 - INFO     - msgr_server - Сформирован ответ клиенту {'response': 200}.
+2022-02-26 20:58:48,213 - INFO     - server_log_config - Server logger test passed!
+2022-02-26 21:14:49,334 - INFO     - msgr_server - Установлено соединение с ('127.0.0.1', 45402).
+2022-02-26 21:14:49,334 - INFO     - msgr_server - Получено сообщение {'action': 'presence', 'time': 1645899289.3345659, 'user': {'account_name': 'Guest'}}.
+2022-02-26 21:14:49,334 - INFO     - msgr_server - Разбор сообщения от клиента: {'action': 'presence', 'time': 1645899289.3345659, 'user': {'account_name': 'Guest'}}
+2022-02-26 21:14:49,335 - INFO     - msgr_server - Сформирован ответ клиенту {'response': 200}.

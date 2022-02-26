@@ -1,0 +1,16 @@
+2022-02-26 20:39:33,900 - INFO     - msgr_client - Сформировано presence сообщение для пользователя Guest.
+2022-02-26 20:39:33,900 - INFO     - msgr_client - Сформировано сообщение {'action': 'presence', 'time': 1645897173.9006152, 'user': {'account_name': 'Guest'}}.
+2022-02-26 20:39:33,901 - INFO     - msgr_client - Обработано сообщение {'response': 200}.
+2022-02-26 20:39:33,901 - INFO     - msgr_client - Разбор сообщения от сервера: {'response': 200}.
+2022-02-26 20:39:33,901 - INFO     - msgr_client - Разобран ответ от сервера 200 : OK.
+2022-02-26 20:55:18,150 - INFO     - msgr_client - Сформировано presence сообщение для пользователя Guest.
+2022-02-26 20:55:18,150 - INFO     - msgr_client - Сформировано сообщение {'action': 'presence', 'time': 1645898118.1508963, 'user': {'account_name': 'Guest'}}.
+2022-02-26 20:55:18,151 - INFO     - msgr_client - Получено сообщение {'response': 200}.
+2022-02-26 20:55:18,151 - INFO     - msgr_client - Разбор сообщения от сервера: {'response': 200}.
+2022-02-26 20:55:18,151 - INFO     - msgr_client - Разобран ответ от сервера 200 : OK.
+2022-02-26 21:13:54,402 - INFO     - client_log_config - Client logger test passed!
+2022-02-26 21:14:49,334 - INFO     - msgr_client - Сформировано presence сообщение для пользователя Guest.
+2022-02-26 21:14:49,334 - INFO     - msgr_client - Сформировано сообщение {'action': 'presence', 'time': 1645899289.3345659, 'user': {'account_name': 'Guest'}}.
+2022-02-26 21:14:49,335 - INFO     - msgr_client - Получено сообщение {'response': 200}.
+2022-02-26 21:14:49,335 - INFO     - msgr_client - Разбор сообщения от сервера: {'response': 200}.
+2022-02-26 21:14:49,335 - INFO     - msgr_client - Разобран ответ от сервера 200 : OK.
