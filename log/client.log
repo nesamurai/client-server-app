@@ -1,16 +1,13 @@
-2022-02-26 20:39:33,900 - INFO     - msgr_client - Сформировано presence сообщение для пользователя Guest.
-2022-02-26 20:39:33,900 - INFO     - msgr_client - Сформировано сообщение {'action': 'presence', 'time': 1645897173.9006152, 'user': {'account_name': 'Guest'}}.
-2022-02-26 20:39:33,901 - INFO     - msgr_client - Обработано сообщение {'response': 200}.
-2022-02-26 20:39:33,901 - INFO     - msgr_client - Разбор сообщения от сервера: {'response': 200}.
-2022-02-26 20:39:33,901 - INFO     - msgr_client - Разобран ответ от сервера 200 : OK.
-2022-02-26 20:55:18,150 - INFO     - msgr_client - Сформировано presence сообщение для пользователя Guest.
-2022-02-26 20:55:18,150 - INFO     - msgr_client - Сформировано сообщение {'action': 'presence', 'time': 1645898118.1508963, 'user': {'account_name': 'Guest'}}.
-2022-02-26 20:55:18,151 - INFO     - msgr_client - Получено сообщение {'response': 200}.
-2022-02-26 20:55:18,151 - INFO     - msgr_client - Разбор сообщения от сервера: {'response': 200}.
-2022-02-26 20:55:18,151 - INFO     - msgr_client - Разобран ответ от сервера 200 : OK.
-2022-02-26 21:13:54,402 - INFO     - client_log_config - Client logger test passed!
-2022-02-26 21:14:49,334 - INFO     - msgr_client - Сформировано presence сообщение для пользователя Guest.
-2022-02-26 21:14:49,334 - INFO     - msgr_client - Сформировано сообщение {'action': 'presence', 'time': 1645899289.3345659, 'user': {'account_name': 'Guest'}}.
-2022-02-26 21:14:49,335 - INFO     - msgr_client - Получено сообщение {'response': 200}.
-2022-02-26 21:14:49,335 - INFO     - msgr_client - Разбор сообщения от сервера: {'response': 200}.
-2022-02-26 21:14:49,335 - INFO     - msgr_client - Разобран ответ от сервера 200 : OK.
+2022-03-06 09:57:31,169 - INFO     - msgr_client - Сформировано presence сообщение для пользователя Guest.
+2022-03-06 09:57:31,169 - INFO     - msgr_client - Сформировано сообщение {'action': 'presence', 'time': 1646549851.1694095, 'user': {'account_name': 'Guest'}}.
+2022-03-06 09:57:31,169 - INFO     - decors - 
+        Вызвана функция send_message со следующими параметрами args=(<socket.socket fd=5, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 33306), raddr=('127.0.0.1', 7777)>, {'action': 'presence', 'time': 1646549851.1694095, 'user': {'account_name': 'Guest'}}), kwargs={} из модуля common.utils.
+        <2022-03-06 09:57:31.169684> Функция <function send_message at 0x7f512db6be50> вызвана из функции main().
+        
+2022-03-06 09:57:31,170 - INFO     - decors - 
+        Вызвана функция get_message со следующими параметрами args=(<socket.socket fd=5, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 33306), raddr=('127.0.0.1', 7777)>,), kwargs={} из модуля common.utils.
+        <2022-03-06 09:57:31.170377> Функция <function get_message at 0x7f512db6bb80> вызвана из функции main().
+        
+2022-03-06 09:57:31,170 - INFO     - msgr_client - Получено сообщение {'response': 200}.
+2022-03-06 09:57:31,170 - INFO     - msgr_client - Разбор сообщения от сервера: {'response': 200}.
+2022-03-06 09:57:31,170 - INFO     - msgr_client - Разобран ответ от сервера 200 : OK.
