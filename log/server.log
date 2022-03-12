@@ -1,12 +1,19 @@
-2022-03-06 09:57:31,169 - INFO     - msgr_server - Установлено соединение с ('127.0.0.1', 33306).
-2022-03-06 09:57:31,169 - INFO     - decors - 
-        Вызвана функция get_message со следующими параметрами args=(<socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 7777), raddr=('127.0.0.1', 33306)>,), kwargs={} из модуля common.utils.
-        <2022-03-06 09:57:31.169739> Функция <function get_message at 0x7f8d6b595160> вызвана из функции main().
+2022-03-12 17:48:54,577 - INFO     - msgr_server - Запущен сервер, порт для подключений: 7777,
+        адрес с которого принимаются подключения: 127.0.0.1.
+        Если адрес не указан, принимаются соединения с любых адресов.
+2022-03-12 17:48:57,135 - INFO     - msgr_server - Установлено соединение с ('127.0.0.1', 54358).
+2022-03-12 17:48:57,135 - INFO     - decors - 
+        Вызвана функция get_message со следующими параметрами args=(<socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 7777), raddr=('127.0.0.1', 54358)>,), kwargs={} из модуля common.utils.
+        <2022-03-12 17:48:57.135251> Функция <function get_message at 0x7fc15aa8bf70> вызвана из функции main().
         
-2022-03-06 09:57:31,170 - INFO     - msgr_server - Получено сообщение {'action': 'presence', 'time': 1646549851.1694095, 'user': {'account_name': 'Guest'}}.
-2022-03-06 09:57:31,170 - INFO     - msgr_server - Разбор сообщения от клиента: {'action': 'presence', 'time': 1646549851.1694095, 'user': {'account_name': 'Guest'}}
-2022-03-06 09:57:31,170 - INFO     - msgr_server - Сформирован ответ клиенту {'response': 200}.
-2022-03-06 09:57:31,170 - INFO     - decors - 
-        Вызвана функция send_message со следующими параметрами args=(<socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 7777), raddr=('127.0.0.1', 33306)>, {'response': 200}), kwargs={} из модуля common.utils.
-        <2022-03-06 09:57:31.170329> Функция <function send_message at 0x7f8d6b4bc700> вызвана из функции main().
+2022-03-12 17:48:57,135 - INFO     - msgr_server - Разбор сообщения от клиента: {'action': 'presence', 'time': 1647096537.1350284, 'user': {'account_name': 'Guest'}}
+2022-03-12 17:48:57,135 - INFO     - decors - 
+        Вызвана функция send_message со следующими параметрами args=(<socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 7777), raddr=('127.0.0.1', 54358)>, {'response': 200}), kwargs={} из модуля common.utils.
+        <2022-03-12 17:48:57.135590> Функция <function send_message at 0x7fc15a989670> вызвана из функции main().
         
+2022-03-12 17:49:00,640 - INFO     - decors - 
+        Вызвана функция get_message со следующими параметрами args=(<socket.socket fd=6, family=AddressFamily.AF_INET, type=SocketKind.SOCK_STREAM, proto=0, laddr=('127.0.0.1', 7777), raddr=('127.0.0.1', 54358)>,), kwargs={} из модуля common.utils.
+        <2022-03-12 17:49:00.640269> Функция <function get_message at 0x7fc15aa8bf70> вызвана из функции main().
+        
+2022-03-12 17:49:00,640 - INFO     - msgr_server - Разбор сообщения от клиента: {'action': 'message', 'time': 1647096540.373959, 'account_name': 'Guest', 'mess_text': 'wow'}
+2022-03-12 17:49:00,641 - INFO     - msgr_server - Клиент ('127.0.0.1', 54358) отключился от сервера.
