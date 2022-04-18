@@ -17,6 +17,7 @@ class ServerDB:
 
         active_users = relationship("ActiveClient", back_populates="client")
         history = relationship("ClientHistory", back_populates="user")
+        uhistory = relationship("UsersHistory", back_populates="man")
 
         def __repr__(self):
             return f'<Client(name={self.login})>'
@@ -51,6 +52,31 @@ class ServerDB:
             return f'<ClientHistory({self.ip_address}, {self.date_time})>'
 
 
+    class UsersContacts(Base):
+        __tablename__ = 'contacts'
+
+        id = Column(Integer, primary_key=True)
+        user = Column(Integer, ForeignKey('clients.id'))
+        contact = Column(Integer, ForeignKey('clients.id'))
+
+        def __repr__(self):
+            return f'<UsersContacts({self.user}, {self.contact})>'
+
+
+    class UsersHistory(Base):
+        __tablename__ = 'history'
+
+        id = Column(Integer, primary_key=True)
+        user = Column(Integer, ForeignKey('clients.id'))
+        sent = Column(Integer)
+        accepted = Column(Integer)
+
+        man = relationship("Client", back_populates="uhistory")
+
+        def __repr__(self):
+            return f'<UsersHistory({self.sent}, {self.accepted})>'
+
+
     def __init__(self):
         self.engine = create_engine('sqlite:///server_base.db', echo=False, pool_recycle=7200)
         self.Base.metadata.create_all(self.engine)
@@ -80,6 +106,49 @@ class ServerDB:
         self.session.query(self.ActiveClient).filter_by(client_id=user.id).delete()
         self.session.commit()
 
+    # Функция фиксирует передачу сообщения и делает соответствующие отметки в БД
+    def process_message(self, sender, recipient):
+        # Получаем ID отправителя и получателя
+        sender = self.session.query(self.Client).filter_by(login=sender).first().id
+        recipient = self.session.query(self.Client).filter_by(login=recipient).first().id
+        # Запрашиваем строки из истории и увеличиваем счётчики
+        sender_row = self.session.query(self.UsersHistory).filter_by(user=sender).first()
+        sender_row.sent += 1
+        recipient_row = self.session.query(self.UsersHistory).filter_by(user=recipient).first()
+        recipient_row.accepted += 1
+        self.session.commit()
+
+    # Функция добавляет контакт для пользователя.
+    def add_contact(self, user, contact):
+        # Получаем ID пользователей
+        user = self.session.query(self.Client).filter_by(login=user).first()
+        contact = self.session.query(self.Client).filter_by(login=contact).first()
+
+        # Проверяем что не дубль и что контакт может существовать (полю пользователь мы доверяем)
+        if not contact or self.session.query(self.UsersContacts).filter_by(user=user.id, contact=contact.id).count():
+            return
+
+        # Создаём объект и заносим его в базу
+        contact_row = self.UsersContacts(user.id, contact.id)
+        self.session.add(contact_row)
+        self.session.commit()
+
+    # Функция удаляет контакт из базы данных
+    def remove_contact(self, user, contact):
+        # Получаем ID пользователей
+        user = self.session.query(self.Client).filter_by(login=user).first()
+        contact = self.session.query(self.Client).filter_by(login=contact).first()
+
+        # Проверяем что контакт может существовать (полю пользователь мы доверяем)
+        if not contact:
+            return
+        # Удаляем требуемое
+        print(self.session.query(self.UsersContacts).filter(
+            self.UsersContacts.user == user.id,
+            self.UsersContacts.contact == contact.id
+        ).delete())
+        self.session.commit()
+
     def users_list(self):
         query = self.session.query(self.Client.login, self.Client.last_conn)
         return query.all()
@@ -92,6 +161,24 @@ class ServerDB:
         query = self.session.query(self.Client.login, self.ClientHistory.last_conn, self.ClientHistory.ip_address, self.ClientHistory.port).join(self.Client)
         if username:
             query = query.filter(self.Client.login==username)
+        return query.all()
+
+    def get_contacts(self, username):
+        user = self.session.query(self.Client).filter_by(login=username).one()
+        query = self.session.query(self.UsersContacts, self.Client.login). \
+            filter_by(user=user.id). \
+            join(self.Client, self.UsersContacts.contact == self.Client.id)
+
+        # выбираем только имена пользователей и возвращаем их.
+        return [contact[1] for contact in query.all()]
+
+    def message_history(self):
+        query = self.session.query(
+            self.Client.login,
+            self.Client.last_conn,
+            self.UsersHistory.sent,
+            self.UsersHistory.accepted
+        ).join(self.Client)
         return query.all()
 
 
