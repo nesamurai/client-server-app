@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import (QMainWindow, QAction, qApp, QLabel, QTableView,
                              QApplication, QDialog, QPushButton, QLineEdit,
                              QFileDialog)
-form PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 
