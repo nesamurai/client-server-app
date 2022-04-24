@@ -21,14 +21,17 @@ socket_lock = threading.Lock()
 class ClientTransport(threading.Thread, QObject):
     new_message = pyqtSignal(str)
     connection_lost = pyqtSignal()
+    message_205 = pyqtSignal()
 
-    def __init__(self, port, ip_address, database, username):
+    def __init__(self, port, ip_address, database, username, passwd, keys):
         threading.Thread.__init__(self)
         QObject.__init__(self)
 
         self.database = database
         self.username = username
+        self.password = passwd
         self.transport = None
+        self.keys = keys
         self.connection_init(port, ip_address)
         try:
             self.user_list_update()
@@ -60,26 +63,52 @@ class ClientTransport(threading.Thread, QObject):
         if not connected:
             logger.critical('Не удалось установить соединение с сервером')
             raise ServerError('Не удалось установить соединение с сервером')
-        logger.debug('Установлено соединение с сервером')
+        logger.debug('Starting auth dialog.')
 
-        try:
-            with socket_lock:
-                send_message(self.transport, self.create_presence())
-                self.process_server_ans(get_message(self.transport))
-        except (OSError, json.JSONDecodeError):
-            logger.critical('Потеряно соединение с сервером!')
-            raise ServerError('Потеряно соединение с сервером!')
+        passwd_bytes = self.password.encode('utf-8')
+        salt = self.username.lower().encode('utf-8')
+        passwd_hash = hashlib.pbkdf2_hmac('sha512', passwd_bytes, salt, 10000)
+        passwd_hash_string = binascii.hexlify(passwd_hash)
 
-        logger.info('Соединение с сервером успешно установлено.')
+        logger.debug(f'Passwd hash ready: {passwd_hash_string}')
 
-    def create_presence(self):
-        out = {
-            ACTION: PRESENCE,
-            TIME: time.time(),
-            USER: {ACCOUNT_NAME: self.username}
-        }
-        logger.debug(f'Сформировано {PRESENCE} сообщение для пользователя {self.username}')
-        return out
+        # Получаем публичный ключ и декодируем его из байтов
+        pubkey = self.keys.publickey().export_key().decode('ascii')
+
+        # Авторизируемся на сервере
+        with socket_lock:
+            presense = {
+                ACTION: PRESENCE,
+                TIME: time.time(),
+                USER: {
+                    ACCOUNT_NAME: self.username,
+                    PUBLIC_KEY: pubkey
+                }
+            }
+            logger.debug(f"Presense message = {presense}")
+            # Отправляем серверу приветственное сообщение.
+            try:
+                send_message(self.transport, presense)
+                ans = get_message(self.transport)
+                logger.debug(f'Server response = {ans}.')
+                # Если сервер вернул ошибку, бросаем исключение.
+                if RESPONSE in ans:
+                    if ans[RESPONSE] == 400:
+                        raise ServerError(ans[ERROR])
+                    elif ans[RESPONSE] == 511:
+                        # Если всё нормально, то продолжаем процедуру
+                        # авторизации.
+                        ans_data = ans[DATA]
+                        hash = hmac.new(passwd_hash_string, ans_data.encode('utf-8'), 'MD5')
+                        digest = hash.digest()
+                        my_ans = RESPONSE_511
+                        my_ans[DATA] = binascii.b2a_base64(
+                            digest).decode('ascii')
+                        send_message(self.transport, my_ans)
+                        self.process_server_ans(get_message(self.transport))
+            except (OSError, json.JSONDecodeError) as err:
+                logger.debug(f'Connection error.', exc_info=err)
+                raise ServerError('Сбой соединения в процессе авторизации.')
 
     def process_server_ans(self, message):
         logger.debug(f'Разбор сообщения от сервера: {message}')
@@ -90,6 +119,10 @@ class ClientTransport(threading.Thread, QObject):
                 return
             elif message[RESPONSE] == 400:
                 raise ServerError(f'{message[ERROR]}')
+            elif message[RESPONSE] == 205:
+                self.user_list_update()
+                self.contacts_list_update()
+                self.message_205.emit()
             else:
                 logger.debug(f'Принят неизвестный код подтверждения {message[RESPONSE]}')
 
@@ -137,6 +170,22 @@ class ClientTransport(threading.Thread, QObject):
             self.database.add_users(ans[LIST_INFO])
         else:
             logger.error('Не удалось обновить список известных пользователей.')
+
+    def key_request(self, user):
+        '''Метод запрашивающий с сервера публичный ключ пользователя.'''
+        logger.debug(f'Запрос публичного ключа для {user}')
+        req = {
+            ACTION: PUBLIC_KEY_REQUEST,
+            TIME: time.time(),
+            ACCOUNT_NAME: user
+        }
+        with socket_lock:
+            send_message(self.transport, req)
+            ans = get_message(self.transport)
+        if RESPONSE in ans and ans[RESPONSE] == 511:
+            return ans[DATA]
+        else:
+            logger.error(f'Не удалось получить ключ собеседника{user}.')
 
     def add_contact(self, contact):
         logger.debug(f'Создание контакта {contact}')
@@ -216,9 +265,8 @@ class ClientTransport(threading.Thread, QObject):
                     logger.debug(f'Потеряно соединение с сервером.')
                     self.running = False
                     self.connection_lost.emit()
-                # Если сообщение получено, то вызываем функцию обработчик:
-                else:
-                    logger.debug(f'Принято сообщение с сервера: {message}')
-                    self.process_server_ans(message)
                 finally:
                     self.transport.settimeout(5)
+            if message:
+                logger.debug(f'Принято сообщение с сервера: {message}')
+                self.process_server_ans(message)

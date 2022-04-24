@@ -9,9 +9,11 @@ from common.variables import *
 
 class ServerDB:
     class AllUsers:
-        def __init__(self, username):
+        def __init__(self, username, passwd_hash):
             self.name = username
             self.last_login = datetime.datetime.now()
+            self.passwd_hash = passwd_hash
+            self.pubkey = None
             self.id = None
 
     # Класс - отображение таблицы активных пользователей:
@@ -59,7 +61,9 @@ class ServerDB:
         users_table = Table('Users', self.metadata,
                             Column('id', Integer, primary_key=True),
                             Column('name', String, unique=True),
-                            Column('last_login', DateTime)
+                            Column('last_login', DateTime),
+                            Column('passwd_hash', String),
+                            Column('pubkey', Text)
                             )
 
         # Создаём таблицу активных пользователей
@@ -114,7 +118,7 @@ class ServerDB:
         self.session.commit()
 
     # Функция выполняющяяся при входе пользователя, записывает в базу факт входа
-    def user_login(self, username, ip_address, port):
+    def user_login(self, username, ip_address, port, key):
         # Запрос в таблицу пользователей на наличие там пользователя с таким именем
         rez = self.session.query(self.AllUsers).filter_by(name=username)
 
@@ -122,14 +126,11 @@ class ServerDB:
         if rez.count():
             user = rez.first()
             user.last_login = datetime.datetime.now()
+            if user.pubkey != key:
+                user.pubkey = key
         # Если нету, то создаздаём нового пользователя
         else:
-            user = self.AllUsers(username)
-            self.session.add(user)
-            # Комит здесь нужен, чтобы присвоился ID
-            self.session.commit()
-            user_in_history = self.UsersHistory(user.id)
-            self.session.add(user_in_history)
+            raise ValueError('Пользователь не зарегистрирован.')
 
         # Теперь можно создать запись в таблицу активных пользователей о факте входа.
         new_active_user = self.ActiveUsers(user.id, ip_address, port, datetime.datetime.now())
@@ -141,6 +142,48 @@ class ServerDB:
 
         # Сохрраняем изменения
         self.session.commit()
+
+    def add_user(self, name, passwd_hash):
+        """
+        Метод регистрации пользователя.
+        Принимает имя и хэш пароля, создаёт запись в таблице статистики.
+        """
+        user_row = self.AllUsers(name, passwd_hash)
+        self.session.add(user_row)
+        self.session.commit()
+        history_row = self.UsersHistory(user_row.id)
+        self.session.add(history_row)
+        self.session.commit()
+
+    def remove_user(self, name):
+        """Метод удаляющий пользователя из базы."""
+        user = self.session.query(self.AllUsers).filter_by(name=name).first()
+        self.session.query(self.ActiveUsers).filter_by(user=user.id).delete()
+        self.session.query(self.LoginHistory).filter_by(name=user.id).delete()
+        self.session.query(self.UsersContacts).filter_by(user=user.id).delete()
+        self.session.query(
+            self.UsersContacts).filter_by(
+            contact=user.id).delete()
+        self.session.query(self.UsersHistory).filter_by(user=user.id).delete()
+        self.session.query(self.AllUsers).filter_by(name=name).delete()
+        self.session.commit()
+
+    def get_hash(self, name):
+        """Метод получения хэша пароля пользователя."""
+        user = self.session.query(self.AllUsers).filter_by(name=name).first()
+        return user.passwd_hash
+
+    def get_pubkey(self, name):
+        """Метод получения публичного ключа пользователя."""
+        user = self.session.query(self.AllUsers).filter_by(name=name).first()
+        return user.pubkey
+
+    def check_user(self, name):
+        """Метод проверяющий существование пользователя."""
+        if self.session.query(self.AllUsers).filter_by(name=name).count():
+            return True
+        else:
+            return False
 
     # Функция фиксирующая отключение пользователя
     def user_logout(self, username):
@@ -261,9 +304,9 @@ class ServerDB:
 
 # Отладка
 if __name__ == '__main__':
-    test_db = ServerStorage()
-    test_db.user_login('1111', '192.168.1.113', 8080)
-    test_db.user_login('McG2', '192.168.1.113', 8081)
+    test_db = ServerDB('../server_base.db')
+    test_db.user_login('test1', '192.168.1.113', 8080)
+    test_db.user_login('test2', '192.168.1.113', 8081)
     print(test_db.users_list())
     # print(test_db.active_users_list())
     # test_db.user_logout('McG')
@@ -272,5 +315,5 @@ if __name__ == '__main__':
     # test_db.add_contact('test1', 'test3')
     # test_db.add_contact('test1', 'test6')
     # test_db.remove_contact('test1', 'test3')
-    test_db.process_message('McG2', '1111')
+    test_db.process_message('test1', 'test2')
     print(test_db.message_history())
